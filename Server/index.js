@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const socketIO = require("socket.io");
 const path = require("path");
 
-const Message = require("..Server/models/Message");
+const Message = require("../models/Message");
 
 dotenv.config();
 
