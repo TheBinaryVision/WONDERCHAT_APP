@@ -4,8 +4,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const socketIO = require("socket.io");
+const path = require("path");
 
-const Message = require("./models/Message"); // adjust path if needed
+const Message = require("..Server/models/Message");
 
 dotenv.config();
 
@@ -13,7 +14,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
-    origin: "http://localhost:3000", // frontend
+    origin: "http://localhost:3000", // OR your frontend domain in production
     methods: ["GET", "POST"],
   },
 });
@@ -63,16 +64,17 @@ io.on("connection", (socket) => {
   });
 });
 
+// ✅ Serve frontend only in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/build/index.html"));
+  });
+}
+
 // ✅ Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-const path = require("path");
-
-// Serve frontend build
-app.use(express.static(path.join(__dirname, "../client/build")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
